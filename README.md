@@ -72,6 +72,12 @@ Open http://localhost:5173
 
 ---
 
+## Vercel Deployment
+
+Set the Vercel project **Root Directory** to `frontend`. The included `frontend/vercel.json` rewrites direct route requests (such as `/lottery` or `/account`) to the React app entry point, so these routes also work when opened or refreshed directly.
+
+---
+
 ## Contract Overview
 
 | Function | Description |
