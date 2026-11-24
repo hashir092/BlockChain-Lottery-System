@@ -1,0 +1,26 @@
+{
+  "name": "lotterychain",
+  "version": "1.0.0",
+  "description": "Premium Web3 Lottery DApp - LotteryChain",
+  "scripts": {
+    "compile": "hardhat compile",
+    "deploy:anvil": "hardhat run scripts/deploy.js --network anvil",
+    "deploy:localhost": "hardhat run scripts/deploy.js --network localhost",
+    "node": "hardhat node",
+    "frontend": "cd frontend && npm run dev",
+    "install:all": "npm install && cd frontend && npm install"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "dotenv": "^18.0.10",
+    "hardhat": "^2.22.0"
+  },
+  "keywords": [
+    "web3",
+    "lottery",
+    "ethereum",
+    "dapp"
+  ],
+  "author": "LotteryChain",
+  "license": "MIT"
+}
