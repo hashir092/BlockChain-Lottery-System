@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { BrowserProvider, formatEther } from 'ethers';
 import { ACTIVE_NETWORK, SHORT_ADDRESS } from '../config';
 import toast from 'react-hot-toast';
@@ -16,8 +16,10 @@ export function WalletProvider({ children }) {
   const [balance, setBalance] = useState(null);
   const [chainId, setChainId] = useState(null);
   const [provider, setProvider] = useState(null);
+  const providerRef = useRef(null);
   const [signer, setSigner] = useState(null);
   const [isConnecting, setIsConnecting] = useState(false);
+  const [isInitializing, setIsInitializing] = useState(true);
   const [isCorrectNetwork, setIsCorrectNetwork] = useState(false);
 
   const isMetaMaskInstalled = typeof window !== 'undefined' && !!window.ethereum;
@@ -41,13 +43,13 @@ export function WalletProvider({ children }) {
     } else {
       const addr = accounts[0];
       setAccount(addr);
-      if (provider) {
-        const s = await provider.getSigner();
+      if (providerRef.current) {
+        const s = await providerRef.current.getSigner();
         setSigner(s);
-        refreshBalance(addr, provider);
+        refreshBalance(addr, providerRef.current);
       }
     }
-  }, [provider, refreshBalance]);
+  }, [refreshBalance]);
 
   const handleChainChanged = useCallback((hexChainId) => {
     const id = parseInt(hexChainId, 16);
@@ -59,7 +61,10 @@ export function WalletProvider({ children }) {
 
   // Init listeners
   useEffect(() => {
-    if (!isMetaMaskInstalled) return;
+    if (!isMetaMaskInstalled) {
+      setIsInitializing(false);
+      return;
+    }
 
     const eth = window.ethereum;
     eth.on?.('accountsChanged', handleAccountsChanged);
@@ -71,6 +76,7 @@ export function WalletProvider({ children }) {
         const accounts = await eth.request({ method: 'eth_accounts' });
         if (accounts.length > 0) {
           const prov = new BrowserProvider(eth);
+          providerRef.current = prov;
           setProvider(prov);
           const network = await prov.getNetwork();
           const id = Number(network.chainId);
@@ -83,6 +89,8 @@ export function WalletProvider({ children }) {
         }
       } catch (e) {
         console.error(e);
+      } finally {
+        setIsInitializing(false);
       }
     })();
 
@@ -136,6 +144,7 @@ export function WalletProvider({ children }) {
       }
 
       const prov = new BrowserProvider(eth);
+      providerRef.current = prov;
       setProvider(prov);
 
       const network = await prov.getNetwork();
@@ -171,6 +180,7 @@ export function WalletProvider({ children }) {
     setAccount(null);
     setBalance(null);
     setSigner(null);
+    providerRef.current = null;
     setProvider(null);
     toast('Disconnected', { icon: '👋' });
   };
@@ -182,6 +192,7 @@ export function WalletProvider({ children }) {
     provider,
     signer,
     isConnecting,
+    isInitializing,
     isCorrectNetwork,
     isMetaMaskInstalled,
     connect,

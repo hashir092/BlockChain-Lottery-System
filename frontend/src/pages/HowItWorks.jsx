@@ -100,6 +100,22 @@ export default function HowItWorks() {
           font-family: var(--font-display);
           margin-bottom: 20px;
         }
+        @media (max-width: 480px) {
+          .how-page {
+            padding-top: 32px;
+          }
+          .step {
+            gap: 14px;
+            padding: 20px;
+          }
+          .step-num {
+            min-width: 38px;
+            font-size: 1.45rem;
+          }
+          .cta-box {
+            padding: 32px 20px;
+          }
+        }
       `}</style>
     </div>
   );

@@ -43,6 +43,11 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+button,
+input {
+  font: inherit;
+}
+
 #root {
   min-height: 100vh;
 }
@@ -57,6 +62,17 @@ button {
   cursor: pointer;
   border: none;
   outline: none;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible {
+  outline: 2px solid var(--accent-gold);
+  outline-offset: 3px;
+}
+
+button:not(:disabled):active {
+  transform: translateY(1px);
 }
 
 img {
@@ -186,6 +202,46 @@ img {
   font-size: 17px;
 }
 
+.btn:disabled,
+.btn[aria-disabled='true'] {
+  pointer-events: none;
+  cursor: not-allowed;
+  opacity: 0.5;
+  transform: none;
+  box-shadow: none;
+}
+
+.btn:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.btn-spinner {
+  width: 1em;
+  height: 1em;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  flex: 0 0 auto;
+}
+
+.data-loader {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: var(--text-secondary);
+  min-height: 24px;
+}
+
+.data-loader .btn-spinner {
+  color: var(--accent-gold);
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
 /* ========== Cards ========== */
 .card {
   background: var(--bg-card);
@@ -199,6 +255,17 @@ img {
 .card:hover {
   border-color: var(--border-glow);
   box-shadow: var(--shadow-gold);
+}
+
+input,
+select {
+  min-width: 0;
+}
+
+input:disabled,
+select:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
 }
 
 /* ========== Skeleton ========== */
@@ -290,6 +357,20 @@ img {
   }
   .modal {
     padding: 24px;
+    max-height: calc(100dvh - 32px);
+    overflow-y: auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .btn {
+    min-height: 44px;
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .btn-lg {
+    width: 100%;
   }
 }
 

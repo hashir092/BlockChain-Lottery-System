@@ -63,21 +63,35 @@ export default function Lottery() {
             <div className="stats-row">
               <div className="stat-card card">
                 <div className="stat-label">Ticket Price</div>
-                <div className="stat-value text-gold">
-                  {roundInfo ? `${roundInfo.ticketPrice} ETH` : '—'}
-                </div>
+                {loading ? (
+                  <div className="data-loader"><span className="btn-spinner" aria-hidden="true" /></div>
+                ) : (
+                  <div className="stat-value text-gold">{roundInfo ? `${roundInfo.ticketPrice} ETH` : '—'}</div>
+                )}
               </div>
               <div className="stat-card card">
                 <div className="stat-label">Tickets This Round</div>
-                <div className="stat-value">{roundInfo?.ticketCount ?? '—'}</div>
+                {loading ? (
+                  <div className="data-loader"><span className="btn-spinner" aria-hidden="true" /></div>
+                ) : (
+                  <div className="stat-value">{roundInfo?.ticketCount ?? '—'}</div>
+                )}
               </div>
               <div className="stat-card card">
                 <div className="stat-label">Total Ever Sold</div>
-                <div className="stat-value">{totalSold}</div>
+                {loading ? (
+                  <div className="data-loader"><span className="btn-spinner" aria-hidden="true" /></div>
+                ) : (
+                  <div className="stat-value">{totalSold}</div>
+                )}
               </div>
               <div className="stat-card card">
                 <div className="stat-label">Total Winners</div>
-                <div className="stat-value text-emerald">{totalWinners}</div>
+                {loading ? (
+                  <div className="data-loader"><span className="btn-spinner" aria-hidden="true" /></div>
+                ) : (
+                  <div className="stat-value text-emerald">{totalWinners}</div>
+                )}
               </div>
             </div>
 
@@ -90,7 +104,7 @@ export default function Lottery() {
           </div>
 
           <div className="lottery-side">
-            <TicketPurchase roundInfo={roundInfo} onSuccess={load} />
+            <TicketPurchase roundInfo={roundInfo} loading={loading} onSuccess={load} />
           </div>
         </div>
       </div>
@@ -152,6 +166,26 @@ export default function Lottery() {
           }
           .stats-row {
             grid-template-columns: repeat(2, 1fr);
+          }
+        }
+        @media (max-width: 480px) {
+          .lottery-page {
+            padding-top: 32px;
+          }
+          .page-title {
+            font-size: 1.9rem;
+          }
+          .stats-row {
+            gap: 10px;
+          }
+          .stat-card {
+            padding: 14px 10px;
+          }
+          .stat-label {
+            min-height: 2.4em;
+          }
+          .my-tickets-banner {
+            gap: 12px;
           }
         }
       `}</style>

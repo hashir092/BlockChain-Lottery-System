@@ -4,11 +4,12 @@ import { createContractService } from '../services/ContractService';
 import toast from 'react-hot-toast';
 
 export default function Admin() {
-  const { account, signer, provider, connect } = useWallet();
+  const { account, signer, provider, connect, isConnecting, isInitializing } = useWallet();
   const [owner, setOwner] = useState(null);
   const [roundInfo, setRoundInfo] = useState(null);
   const [duration, setDuration] = useState(3600); // 1 hour default
   const [loading, setLoading] = useState(false);
+  const [loadingAction, setLoadingAction] = useState('');
   const [fetching, setFetching] = useState(true);
 
   const isOwner = account && owner && account.toLowerCase() === owner.toLowerCase();
@@ -37,12 +38,13 @@ export default function Admin() {
     load();
   }, [provider]);
 
-  const runTx = async (fn, successMsg) => {
+  const runTx = async (fn, successMsg, actionLabel) => {
     if (!signer) {
       toast.error('Connect wallet first');
       return;
     }
     setLoading(true);
+    setLoadingAction(actionLabel);
     try {
       const service = createContractService(signer);
       const tx = await fn(service);
@@ -60,17 +62,35 @@ export default function Admin() {
       }
     } finally {
       setLoading(false);
+      setLoadingAction('');
     }
   };
 
   if (!account) {
+    if (isInitializing) {
+      return (
+        <div className="admin-page">
+          <div className="container">
+            <div className="card admin-connect-loading" style={{ textAlign: 'center', padding: 48, maxWidth: 420, margin: '60px auto' }}>
+              <div className="skeleton" style={{ height: 28, width: 200, margin: '0 auto 16px' }} />
+              <div className="skeleton" style={{ height: 18, width: '90%', margin: '0 auto 24px' }} />
+              <div className="skeleton" style={{ height: 48, width: 160, margin: '0 auto' }} />
+            </div>
+          </div>
+        </div>
+      );
+    }
+
     return (
       <div className="admin-page">
         <div className="container">
           <div className="card" style={{ textAlign: 'center', padding: 48, maxWidth: 420, margin: '60px auto' }}>
             <h2>Admin Panel</h2>
             <p className="text-muted" style={{ margin: '12px 0 20px' }}>Connect the owner wallet to manage the lottery.</p>
-            <button className="btn btn-primary" onClick={connect}>Connect Wallet</button>
+            <button className="btn btn-primary" onClick={connect} disabled={isConnecting}>
+              {isConnecting && <span className="btn-spinner" aria-hidden="true" />}
+              {isConnecting ? 'Connecting…' : 'Connect Wallet'}
+            </button>
           </div>
         </div>
       </div>
@@ -95,7 +115,10 @@ export default function Admin() {
           <div className="card info-card">
             <h3>Contract Status</h3>
             {fetching ? (
-              <p className="text-muted">Loading…</p>
+              <div className="data-loader">
+                <span className="btn-spinner" aria-hidden="true" />
+                Loading contract status…
+              </div>
             ) : (
               <ul className="info-list">
                 <li><span>Owner</span><code>{owner?.slice(0, 10)}…</code></li>
@@ -128,9 +151,10 @@ export default function Admin() {
               <button
                 className="btn btn-primary"
                 disabled={!isOwner || loading || roundInfo?.entriesOpen}
-                onClick={() => runTx((s) => s.startRound(duration), 'Round started!')}
+                onClick={() => runTx((s) => s.startRound(duration), 'Round started!', 'Starting')}
               >
-                Start New Round
+                {loadingAction === 'Starting' && <span className="btn-spinner" aria-hidden="true" />}
+                {loadingAction === 'Starting' ? 'Processing…' : 'Start New Round'}
               </button>
             </div>
 
@@ -138,9 +162,10 @@ export default function Admin() {
               <button
                 className="btn btn-secondary"
                 disabled={!isOwner || loading || !roundInfo?.entriesOpen}
-                onClick={() => runTx((s) => s.closeEntries(), 'Entries closed')}
+                onClick={() => runTx((s) => s.closeEntries(), 'Entries closed', 'Closing')}
               >
-                Close Entries
+                {loadingAction === 'Closing' && <span className="btn-spinner" aria-hidden="true" />}
+                {loadingAction === 'Closing' ? 'Processing…' : 'Close Entries'}
               </button>
             </div>
 
@@ -148,9 +173,10 @@ export default function Admin() {
               <button
                 className="btn btn-emerald"
                 disabled={!isOwner || loading || roundInfo?.entriesOpen || roundInfo?.drawn || (roundInfo?.ticketCount || 0) === 0}
-                onClick={() => runTx((s) => s.executeDraw(), 'Draw executed! Winner paid.')}
+                onClick={() => runTx((s) => s.executeDraw(), 'Draw executed! Winner paid.', 'Executing')}
               >
-                Execute Draw
+                {loadingAction === 'Executing' && <span className="btn-spinner" aria-hidden="true" />}
+                {loadingAction === 'Executing' ? 'Processing…' : 'Execute Draw'}
               </button>
             </div>
           </div>
@@ -159,6 +185,12 @@ export default function Admin() {
 
       <style>{`
         .admin-page { padding: 48px 0 80px; }
+        .admin-connect-loading {
+          text-align: center;
+          padding: 48px;
+          max-width: 420px;
+          margin: 60px auto;
+        }
         .page-header { margin-bottom: 32px; }
         .page-title {
           font-family: var(--font-display);
@@ -209,6 +241,23 @@ export default function Admin() {
         }
         @media (max-width: 700px) {
           .admin-grid { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 480px) {
+          .admin-page {
+            padding-top: 32px;
+          }
+          .info-card,
+          .actions-card {
+            padding: 20px 16px;
+          }
+          .info-list li {
+            gap: 12px;
+          }
+          .info-list li code,
+          .info-list li strong {
+            text-align: right;
+            overflow-wrap: anywhere;
+          }
         }
       `}</style>
     </div>

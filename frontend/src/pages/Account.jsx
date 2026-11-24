@@ -5,7 +5,7 @@ import { SHORT_ADDRESS, ACTIVE_NETWORK } from '../config';
 import { Link } from 'react-router-dom';
 
 export default function Account() {
-  const { account, balance, shortAddress, connect, isMetaMaskInstalled, provider } = useWallet();
+  const { account, balance, shortAddress, connect, isConnecting, isInitializing, isMetaMaskInstalled, provider } = useWallet();
   const [ticketCount, setTicketCount] = useState(0);
   const [roundTickets, setRoundTickets] = useState(0);
   const [roundInfo, setRoundInfo] = useState(null);
@@ -38,6 +38,20 @@ export default function Account() {
   }, [provider, account]);
 
   if (!account) {
+    if (isInitializing) {
+      return (
+        <div className="account-page">
+          <div className="container">
+            <div className="connect-prompt card account-loading" style={{ maxWidth: 480, margin: '0 auto' }}>
+              <div className="skeleton" style={{ height: 28, width: 220, margin: '0 auto 16px' }} />
+              <div className="skeleton" style={{ height: 18, width: '90%', margin: '0 auto 24px' }} />
+              <div className="skeleton" style={{ height: 52, width: 180, margin: '0 auto' }} />
+            </div>
+          </div>
+        </div>
+      );
+    }
+
     return (
       <div className="account-page">
         <div className="container">
@@ -48,8 +62,9 @@ export default function Account() {
                 ? 'Connect MetaMask to view your tickets and history.'
                 : 'MetaMask is not installed. Please install it from metamask.io first.'}
             </p>
-            <button className="btn btn-primary btn-lg" onClick={connect} style={{ marginTop: 20 }}>
-              {isMetaMaskInstalled ? 'Connect Wallet' : 'Install MetaMask'}
+            <button className="btn btn-primary btn-lg" onClick={connect} disabled={isConnecting} style={{ marginTop: 20 }}>
+              {isConnecting && <span className="btn-spinner" aria-hidden="true" />}
+              {isConnecting ? 'Connecting…' : isMetaMaskInstalled ? 'Connect Wallet' : 'Install MetaMask'}
             </button>
           </div>
         </div>
@@ -93,15 +108,27 @@ export default function Account() {
           <div className="stats-cards">
             <div className="stat-box card">
               <div className="sb-label">Total Tickets Ever</div>
-              <div className="sb-value">{loading ? '…' : ticketCount}</div>
+              {loading ? (
+                <div className="data-loader"><span className="btn-spinner" aria-hidden="true" /></div>
+              ) : (
+                <div className="sb-value">{ticketCount}</div>
+              )}
             </div>
             <div className="stat-box card">
               <div className="sb-label">This Round</div>
-              <div className="sb-value text-gold">{loading ? '…' : roundTickets}</div>
+              {loading ? (
+                <div className="data-loader"><span className="btn-spinner" aria-hidden="true" /></div>
+              ) : (
+                <div className="sb-value text-gold">{roundTickets}</div>
+              )}
             </div>
             <div className="stat-box card">
               <div className="sb-label">Current Round</div>
-              <div className="sb-value">#{roundInfo?.roundId || '—'}</div>
+              {loading ? (
+                <div className="data-loader"><span className="btn-spinner" aria-hidden="true" /></div>
+              ) : (
+                <div className="sb-value">#{roundInfo?.roundId || '—'}</div>
+              )}
             </div>
           </div>
         </div>
@@ -178,6 +205,20 @@ export default function Account() {
         }
         @media (max-width: 700px) {
           .account-grid { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 480px) {
+          .account-page {
+            padding-top: 32px;
+          }
+          .wallet-card {
+            padding: 20px;
+          }
+          .wc-address {
+            font-size: 1.25rem;
+          }
+          .wc-full {
+            overflow-wrap: anywhere;
+          }
         }
       `}</style>
     </div>

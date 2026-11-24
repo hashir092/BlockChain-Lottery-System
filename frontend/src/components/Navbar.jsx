@@ -4,7 +4,7 @@ import { useWallet } from '../context/WalletContext';
 import './Navbar.css';
 
 export default function Navbar() {
-  const { account, shortAddress, balance, isConnecting, connect, disconnect, isMetaMaskInstalled } = useWallet();
+  const { account, shortAddress, balance, isConnecting, isInitializing, connect, disconnect, isMetaMaskInstalled } = useWallet();
   const [menuOpen, setMenuOpen] = useState(false);
   const location = useLocation();
 
@@ -47,7 +47,9 @@ export default function Navbar() {
         </div>
 
         <div className="nav-actions">
-          {account ? (
+          {isInitializing ? (
+            <div className="nav-wallet-skeleton skeleton" aria-label="Connecting wallet" />
+          ) : account ? (
             <div className="wallet-info">
               <div className="wallet-balance">
                 {balance ? `${parseFloat(balance).toFixed(4)} ETH` : '—'}
@@ -62,6 +64,7 @@ export default function Navbar() {
               onClick={connect}
               disabled={isConnecting}
             >
+              {isConnecting && <span className="btn-spinner" aria-hidden="true" />}
               {isConnecting ? 'Connecting…' : isMetaMaskInstalled ? 'Connect Wallet' : 'Install MetaMask'}
             </button>
           )}

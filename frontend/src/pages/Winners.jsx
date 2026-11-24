@@ -40,14 +40,25 @@ export default function Winners() {
           <p className="page-sub">Verified on-chain winners only.</p>
         </header>
 
-        {latest && (
+        {(latest || loading) && (
           <div className="latest-winner glass-glow">
-            <div className="lw-label">LATEST WINNER</div>
-            <div className="lw-address">{SHORT_ADDRESS(latest.winner)}</div>
-            <div className="lw-prize">
-              <span className="text-gold">{latest.prize}</span> ETH
-            </div>
-            <div className="lw-round">Round #{latest.roundId}</div>
+            {loading ? (
+              <>
+                <div className="skeleton" style={{ height: 14, width: 140, margin: '0 auto 16px' }} />
+                <div className="skeleton" style={{ height: 28, width: 220, margin: '0 auto 12px' }} />
+                <div className="skeleton" style={{ height: 34, width: 130, margin: '0 auto 12px' }} />
+                <div className="skeleton" style={{ height: 16, width: 90, margin: '0 auto' }} />
+              </>
+            ) : (
+              <>
+                <div className="lw-label">LATEST WINNER</div>
+                <div className="lw-address">{SHORT_ADDRESS(latest.winner)}</div>
+                <div className="lw-prize">
+                  <span className="text-gold">{latest.prize}</span> ETH
+                </div>
+                <div className="lw-round">Round #{latest.roundId}</div>
+              </>
+            )}
           </div>
         )}
 
@@ -89,7 +100,10 @@ export default function Winners() {
 
         {loading && (
           <div className="card" style={{ padding: 40, textAlign: 'center' }}>
-            <div className="skeleton" style={{ height: 24, width: 200, margin: '0 auto' }} />
+            <div className="data-loader">
+              <span className="btn-spinner" aria-hidden="true" />
+              Loading winners…
+            </div>
           </div>
         )}
       </div>
@@ -162,6 +176,28 @@ export default function Winners() {
             grid-template-columns: 60px 1fr 100px;
             padding: 12px 16px;
             font-size: 0.85rem;
+          }
+        }
+        @media (max-width: 480px) {
+          .winners-page {
+            padding-top: 32px;
+          }
+          .latest-winner {
+            padding: 28px 16px;
+          }
+          .lw-address {
+            font-size: 1.1rem;
+            overflow-wrap: anywhere;
+          }
+          .wt-header, .wt-row {
+            grid-template-columns: 52px minmax(0, 1fr) auto;
+            gap: 8px;
+            padding-left: 12px;
+            padding-right: 12px;
+          }
+          .wt-row .mono {
+            min-width: 0;
+            overflow-wrap: anywhere;
           }
         }
       `}</style>

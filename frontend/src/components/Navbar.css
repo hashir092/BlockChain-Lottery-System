@@ -13,6 +13,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 24px;
+  min-height: 36px;
 }
 
 .logo {
@@ -66,6 +67,12 @@
   gap: 12px;
 }
 
+.nav-wallet-skeleton {
+  width: 124px;
+  height: 36px;
+  border-radius: 10px;
+}
+
 .wallet-info {
   display: flex;
   align-items: center;
@@ -106,7 +113,7 @@
 @media (max-width: 900px) {
   .nav-links {
     position: fixed;
-    top: 64px;
+    top: 65px;
     left: 0;
     right: 0;
     background: var(--bg-secondary);
@@ -118,6 +125,8 @@
     opacity: 0;
     transition: all 0.3s ease;
     pointer-events: none;
+    max-height: calc(100dvh - 65px);
+    overflow-y: auto;
   }
 
   .nav-links.open {
@@ -138,5 +147,40 @@
 
   .wallet-balance {
     display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .navbar {
+    padding: 10px 0;
+  }
+
+  .nav-links {
+    top: 57px;
+    max-height: calc(100dvh - 57px);
+  }
+
+  .navbar-inner {
+    gap: 10px;
+  }
+
+  .logo {
+    min-width: 0;
+    font-size: 1.15rem;
+  }
+
+  .logo-text {
+    white-space: nowrap;
+  }
+
+  .nav-actions {
+    gap: 6px;
+  }
+
+  .nav-actions > .btn {
+    max-width: 145px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 }

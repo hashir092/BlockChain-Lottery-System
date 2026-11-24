@@ -50,6 +50,10 @@
   flex-wrap: wrap;
 }
 
+.hero-cta .btn {
+  min-width: 150px;
+}
+
 .hero-jackpot {
   max-width: 420px;
   margin-left: auto;
@@ -141,6 +145,22 @@
 }
 
 @media (max-width: 500px) {
+  .hero-title {
+    font-size: clamp(2rem, 11vw, 2.8rem);
+  }
+
+  .hero-sub {
+    font-size: 1rem;
+  }
+
+  .hero-cta {
+    flex-direction: column;
+  }
+
+  .hero-cta .btn {
+    width: 100%;
+  }
+
   .features-grid {
     grid-template-columns: 1fr;
   }

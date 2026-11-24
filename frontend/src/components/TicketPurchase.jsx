@@ -5,8 +5,8 @@ import toast from 'react-hot-toast';
 
 const PRESETS = [1, 2, 3, 5, 10];
 
-export default function TicketPurchase({ roundInfo, onSuccess }) {
-  const { account, signer, connect, isCorrectNetwork, switchOrAddNetwork } = useWallet();
+export default function TicketPurchase({ roundInfo, onSuccess, loading: dataLoading = false }) {
+  const { account, signer, connect, isConnecting, isCorrectNetwork, switchOrAddNetwork } = useWallet();
   const [quantity, setQuantity] = useState(1);
   const [custom, setCustom] = useState('');
   const [loading, setLoading] = useState(false);
@@ -16,6 +16,18 @@ export default function TicketPurchase({ roundInfo, onSuccess }) {
   const price = parseFloat(roundInfo?.ticketPrice || '0.01');
   const total = (quantity * price).toFixed(4);
   const canBuy = roundInfo?.entriesOpen && !roundInfo?.drawn;
+
+  if (dataLoading) {
+    return (
+      <div className="ticket-purchase card ticket-purchase-loading">
+        <div className="skeleton" style={{ height: 24, width: 150, marginBottom: 12 }} />
+        <div className="skeleton" style={{ height: 18, width: 190, marginBottom: 24 }} />
+        <div className="skeleton" style={{ height: 44, width: '100%', marginBottom: 16 }} />
+        <div className="skeleton" style={{ height: 44, width: '100%', marginBottom: 16 }} />
+        <div className="skeleton" style={{ height: 50, width: '100%' }} />
+      </div>
+    );
+  }
 
   const handlePreset = (n) => {
     setQuantity(n);
@@ -119,8 +131,9 @@ export default function TicketPurchase({ roundInfo, onSuccess }) {
           className="btn btn-primary btn-lg"
           style={{ width: '100%', marginTop: 20 }}
           onClick={openConfirm}
-          disabled={loading || !canBuy}
+          disabled={loading || isConnecting || !canBuy}
         >
+          {isConnecting && <span className="btn-spinner" aria-hidden="true" />}
           {!account
             ? 'Connect Wallet to Buy'
             : !canBuy
@@ -166,7 +179,8 @@ export default function TicketPurchase({ roundInfo, onSuccess }) {
                 onClick={buy}
                 disabled={loading}
               >
-                {loading ? 'Confirm in MetaMask…' : 'Confirm & Pay'}
+                {loading && <span className="btn-spinner" aria-hidden="true" />}
+                {loading ? 'Processing…' : 'Confirm & Pay'}
               </button>
             </div>
           </div>
@@ -217,6 +231,7 @@ export default function TicketPurchase({ roundInfo, onSuccess }) {
         .preset-btn:disabled {
           opacity: 0.4;
           cursor: not-allowed;
+          pointer-events: none;
         }
         .custom-row {
           margin-bottom: 16px;
@@ -239,6 +254,7 @@ export default function TicketPurchase({ roundInfo, onSuccess }) {
         .custom-row input:focus {
           outline: none;
           border-color: var(--accent-gold);
+          box-shadow: 0 0 0 3px rgba(245, 197, 66, 0.12);
         }
         .total-row {
           display: flex;
@@ -260,6 +276,16 @@ export default function TicketPurchase({ roundInfo, onSuccess }) {
           margin-top: 12px;
           font-size: 0.85rem;
           color: var(--text-muted);
+        }
+        @media (max-width: 480px) {
+          .ticket-purchase {
+            padding: 20px 16px;
+          }
+          .modal .btn {
+            min-width: 0;
+            padding-left: 12px;
+            padding-right: 12px;
+          }
         }
       `}</style>
     </>
